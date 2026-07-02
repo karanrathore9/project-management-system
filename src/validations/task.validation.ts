@@ -8,7 +8,9 @@ export const create = Joi.object({
   status: Joi.string().valid('todo', 'in-progress', 'done').optional(),
   assignee: objectId.allow(null).optional(),
   priority: Joi.string().valid('low', 'medium', 'high').optional(),
-  dueDate: Joi.date().iso().allow(null).optional(),
+  dueDate: Joi.date().iso().min('now').allow(null).optional().messages({
+    'date.min': 'Due date cannot be in the past',
+  }),
 });
 
 export const update = Joi.object({
