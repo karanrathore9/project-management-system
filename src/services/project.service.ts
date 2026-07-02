@@ -13,13 +13,21 @@ async function invalidateCache(projectId: string) {
   }
 }
 
-// A user can access a project if they're the owner or a listed member.
+
+function extractId(value: unknown): string {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  const asObj = value as { _id?: unknown };
+  if (asObj._id) return asObj._id.toString();
+  return (value as { toString(): string }).toString();
+}
+
 export function isMember(
   project: Pick<IProject, 'owner' | 'members'>,
   userId: string
 ): boolean {
-  if (project.owner.toString() === userId) return true;
-  return project.members.some((m) => m.user.toString() === userId);
+  if (extractId(project.owner) === userId) return true;
+  return project.members.some((m) => extractId(m.user) === userId);
 }
 
 export async function createProject(
