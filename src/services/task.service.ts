@@ -1,5 +1,5 @@
 import Task, { ITask, TaskStatus, TaskPriority } from '../models/Task';
-import Project from '../models/Project';
+import Project, { IProject } from '../models/Project';
 import ApiError from '../utils/ApiError';
 import { isMember } from './project.service';
 
@@ -12,6 +12,13 @@ async function assertProjectAccess(projectId: string, userId: string) {
   return project;
 }
 
+function assertValidAssignee(project: Pick<IProject, 'owner' | 'members'>, assigneeId?: string | null) {
+  if (!assigneeId) return;
+  if (!isMember(project, assigneeId)) {
+    throw ApiError.badRequest('Assignee must be a member of this project');
+  }
+}
+
 interface CreateTaskInput {
   title: string;
   description?: string;
@@ -22,7 +29,8 @@ interface CreateTaskInput {
 }
 
 export async function createTask(projectId: string, userId: string, data: CreateTaskInput) {
-  await assertProjectAccess(projectId, userId);
+  const project = await assertProjectAccess(projectId, userId);
+  assertValidAssignee(project, data.assignee);
 
   const lastTask = await Task.findOne({ project: projectId, status: data.status || 'todo' }).sort(
     { order: -1 }
@@ -61,7 +69,11 @@ export async function updateTask(
 ) {
   const task = await Task.findById(taskId);
   if (!task) throw ApiError.notFound('Task not found');
-  await assertProjectAccess(task.project.toString(), userId);
+  const project = await assertProjectAccess(task.project.toString(), userId);
+
+  if (updates.assignee !== undefined) {
+    assertValidAssignee(project, updates.assignee as unknown as string | null);
+  }
 
   Object.assign(task, updates);
   await task.save();

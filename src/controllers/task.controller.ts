@@ -4,7 +4,7 @@ import * as taskService from '../services/task.service';
 import { emitToProject } from '../sockets';
 
 export const createTask = asyncHandler(async (req: Request, res: Response) => {
-    const projectId = req.params.projectId as string;
+  const projectId = req.params.projectId as string;
   const task = await taskService.createTask(projectId, req.user!.id, req.body);
 
   emitToProject(projectId, 'task:created', { task });
@@ -13,20 +13,20 @@ export const createTask = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const listTasks = asyncHandler(async (req: Request, res: Response) => {
-    const projectId = req.params.projectId as string;
+  const projectId = req.params.projectId as string;
 
   const tasks = await taskService.listTasksForProject(projectId, req.user!.id);
   res.status(200).json({ success: true, data: tasks });
 });
 
 export const getTask = asyncHandler(async (req: Request, res: Response) => {
-     const projectId = req.params.projectId as string;
-  const task = await taskService.getTaskById(projectId, req.user!.id);
+  const taskId = req.params.taskId as string;
+  const task = await taskService.getTaskById(taskId, req.user!.id);
   res.status(200).json({ success: true, data: task });
 });
 
 export const updateTask = asyncHandler(async (req: Request, res: Response) => {
-    const taskId = req.params.taskId as string;
+  const taskId = req.params.taskId as string;
   const task = await taskService.updateTask(taskId, req.user!.id, req.body);
 
   emitToProject(task.project.toString(), 'task:updated', { task });
@@ -36,7 +36,7 @@ export const updateTask = asyncHandler(async (req: Request, res: Response) => {
 
 // The hot path — fires when a user drags a card between columns.
 export const updateTaskStatus = asyncHandler(async (req: Request, res: Response) => {
-    const taskId = req.params.taskId as string;
+  const taskId = req.params.taskId as string;
   const task = await taskService.updateTaskStatus(taskId, req.user!.id, req.body);
 
   emitToProject(task.project.toString(), 'task:statusChanged', {
@@ -51,7 +51,7 @@ export const updateTaskStatus = asyncHandler(async (req: Request, res: Response)
 });
 
 export const deleteTask = asyncHandler(async (req: Request, res: Response) => {
-        const taskId = req.params.taskId as string;
+  const taskId = req.params.taskId as string;
 
   const task = await taskService.deleteTask(taskId, req.user!.id);
 
