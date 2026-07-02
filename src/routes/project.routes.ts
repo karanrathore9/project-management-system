@@ -16,8 +16,8 @@ router.get('/:projectId', projectController.getProject);
 router.patch('/:projectId', validate(projectValidation.update), projectController.updateProject);
 router.delete('/:projectId', projectController.deleteProject);
 router.post('/:projectId/members', validate(projectValidation.addMember), projectController.addMember);
+router.get('/:projectId/members', projectController.listMembers);
 
-// Tasks nested under a project (list + create)
 router.get('/:projectId/tasks', taskController.listTasks);
 router.post('/:projectId/tasks', validate(taskValidation.create), taskController.createTask);
 

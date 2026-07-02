@@ -51,3 +51,9 @@ export const addMember = asyncHandler(async (req: Request, res: Response) => {
 
   res.status(200).json({ success: true, data: project });
 });
+
+export const listMembers = asyncHandler(async (req: Request, res: Response) => {
+  const projectId = getProjectId(req.params.projectId);
+  const members = await projectService.getProjectMembers(projectId, req.user!.id);
+  res.status(200).json({ success: true, data: members });
+});

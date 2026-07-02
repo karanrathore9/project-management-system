@@ -110,6 +110,8 @@ export async function deleteProject(projectId: string, userId: string) {
   await invalidateCache(projectId);
 }
 
+
+
 export async function addMember(
   projectId: string,
   userId: string,
@@ -129,4 +131,18 @@ export async function addMember(
   await project.save();
   await invalidateCache(projectId);
   return project;
+}
+
+
+export async function getProjectMembers(projectId: string, userId: string) {
+  const project = await Project.findById(projectId).populate('members.user', 'name email');
+  if (!project) throw ApiError.notFound('Project not found');
+  if (!isMember(project, userId)) {
+    throw ApiError.forbidden('You do not have access to this project');
+  }
+
+  return project.members.map((m) => {
+    const user = m.user as unknown as { _id: unknown; name: string; email: string };
+    return { id: user._id!.toString(), name: user.name, email: user.email, role: m.role };
+  });
 }
