@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as projectController from '../controllers/project.controller';
+import * as projectController from '../controllers/project.controller'
 import * as taskController from '../controllers/task.controller';
 import * as projectValidation from '../validations/project.validation';
 import * as taskValidation from '../validations/task.validation';

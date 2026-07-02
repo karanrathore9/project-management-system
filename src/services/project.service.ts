@@ -30,6 +30,14 @@ export function isMember(
   return project.members.some((m) => extractId(m.user) === userId);
 }
 
+export function isManager(
+  project: Pick<IProject, 'owner' | 'members'>,
+  userId: string
+): boolean {
+  if (extractId(project.owner) === userId) return true;
+  return project.members.some((m) => extractId(m.user) === userId && m.role === 'manager');
+}
+
 export async function createProject(
   userId: string,
   data: { name: string; description?: string }
@@ -131,12 +139,12 @@ export async function addMember(
   await project.save();
   await invalidateCache(projectId);
 
-  // Re-fetch populated so the response matches what GET /projects/:id returns
+  
   const populated = await Project.findById(projectId)
     .populate('owner', 'name email')
     .populate('members.user', 'name email');
 
-  return populated!;
+  return populated as IProject;
 }
 
 

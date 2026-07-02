@@ -1,7 +1,7 @@
 import Task, { ITask, TaskStatus, TaskPriority } from '../models/Task';
 import Project, { IProject } from '../models/Project';
 import ApiError from '../utils/ApiError';
-import { isMember } from './project.service';
+import { isMember, isManager } from './project.service';
 
 async function assertProjectAccess(projectId: string, userId: string) {
   const project = await Project.findById(projectId);
@@ -71,6 +71,11 @@ export async function updateTask(
   if (!task) throw ApiError.notFound('Task not found');
   const project = await assertProjectAccess(task.project.toString(), userId);
 
+
+  if (!isManager(project, userId)) {
+    throw ApiError.forbidden('Only project managers can edit task details');
+  }
+
   if (updates.assignee !== undefined) {
     assertValidAssignee(project, updates.assignee as unknown as string | null);
   }
@@ -80,8 +85,6 @@ export async function updateTask(
   return task.populate('assignee', 'name email');
 }
 
-// Dedicated path for drag-and-drop status changes — the hot path that
-// drives the real-time board updates.
 export async function updateTaskStatus(
   taskId: string,
   userId: string,
