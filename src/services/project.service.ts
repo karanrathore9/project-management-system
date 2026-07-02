@@ -130,7 +130,13 @@ export async function addMember(
   project.members.push({ user: input.userId as unknown as IProject['owner'], role: input.role });
   await project.save();
   await invalidateCache(projectId);
-  return project;
+
+  // Re-fetch populated so the response matches what GET /projects/:id returns
+  const populated = await Project.findById(projectId)
+    .populate('owner', 'name email')
+    .populate('members.user', 'name email');
+
+  return populated!;
 }
 
 

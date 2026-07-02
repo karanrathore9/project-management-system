@@ -44,10 +44,7 @@ export const addMember = asyncHandler(async (req: Request, res: Response) => {
   const projectId = getProjectId(req.params.projectId);
   const project = await projectService.addMember(projectId, req.user!.id, req.body);
 
-  emitToProject(projectId, 'project:memberAdded', {
-    projectId,
-    members: project.members,
-  });
+  emitToProject(projectId, 'project:updated', { project });
 
   res.status(200).json({ success: true, data: project });
 });
