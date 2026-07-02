@@ -4,7 +4,6 @@ import ApiError from '../utils/ApiError';
 
 type Source = 'body' | 'query' | 'params';
 
-// Usage: router.post('/', validate(schema), controller)
 const validate =
   (schema: ObjectSchema, source: Source = 'body') =>
   (req: Request, _res: Response, next: NextFunction) => {
@@ -21,7 +20,14 @@ const validate =
       return next(ApiError.badRequest('Validation failed', details));
     }
 
-    req[source] = value;
+    // Express 5 exposes req.query as a getter computed live from the URL —
+    // it cannot be reassigned. Store the validated/sanitized query
+    // separately; body and params are still safe to overwrite directly.
+    if (source === 'query') {
+      req.validatedQuery = value;
+    } else {
+      req[source] = value;
+    }
     next();
   };
 
