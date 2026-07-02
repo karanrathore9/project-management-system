@@ -40,7 +40,6 @@ async function start(): Promise<void> {
       console.log('HTTP server closed');
       process.exit(0);
     });
-    // Force exit if something hangs (e.g. an open DB/Redis connection)
     setTimeout(() => process.exit(1), 10000).unref();
   };
 

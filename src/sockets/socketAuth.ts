@@ -19,8 +19,6 @@ interface AccessTokenPayload {
   role: UserRole;
 }
 
-// Runs once per socket connection attempt, before 'connection' fires.
-// Client sends the token via `auth: { token }` in the socket.io-client config.
 export default async function socketAuth(
   socket: Socket,
   next: (err?: Error) => void

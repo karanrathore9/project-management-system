@@ -10,10 +10,8 @@ interface JoinAck {
   error?: string;
 }
 
-// All task-board related listeners for a single connected socket.
 export function registerTaskHandlers(_io: Server, socket: AuthedSocket): void {
-  // Client asks to join a project's real-time room.
-  // We re-verify membership server-side — never trust the client's claim.
+  
   socket.on('project:join', async (projectId: string, callback?: (ack: JoinAck) => void) => {
     try {
       const project = await Project.findById(projectId);
